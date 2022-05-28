@@ -30,13 +30,20 @@ The Game of Life is an implementation of the cellular automaton designed by the 
 
 - Run the game
 
-    `python life.py`
+    `python main.py`
 
 ## Usage
 
-In the game window press the game pause key and draw the initial population of cells with the maus
+In the game window press the  pause key and draw the initial population of cells with the mouse.
 
  - If you click on a cell it will live. 
  - If you anti-click on a live cell this cell will die.
+
+## Optional
+In the .conf file you can modify the following game parameters
+
+- window size
+- cells number
+- background color
 
 

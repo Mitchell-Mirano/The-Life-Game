@@ -1,15 +1,72 @@
-from map.game_map import GameMap
-from cells.game_cell import Cell
+import pygame
+import sys
+import numpy as np
+import time
 
-if __name__=="__main__":
-    cell0=Cell(position_x=7,position_y=8,state=1)
-    cell1=Cell(position_x=8,position_y=7,state=1)
-    cell2=Cell(position_x=8,position_y=8,state=1)
-    cell3=Cell(position_x=8,position_y=9,state=1)
-    cell4=Cell(position_x=9,position_y=9,state=1)
+from utils.functions import get_cell_points, get_neighbors_number
+from utils.settings import get_game_settings
 
-    cells=[cell0,cell1,cell2,cell3,cell4]
 
-    game=GameMap(size_x=30,size_y=30)
-    game.initialize_population(cells)
-    game.start_game()
+pygame.init()
+
+game_settings=get_game_settings()
+
+color = game_settings.background_color
+
+n_cells_x,n_cells_y=game_settings.n_cells_x,game_settings.n_cells_y
+
+cell_width=game_settings.width/n_cells_x
+cell_height=game_settings.height/n_cells_y
+
+screen = pygame.display.set_mode((game_settings.width, game_settings.height),pygame.RESIZABLE)
+
+GameState=np.zeros((n_cells_x,n_cells_y))
+
+
+pause_execution=False
+
+while True:
+    NewGameState=np.copy(GameState)
+    screen.fill(color)
+    time.sleep(0.1)
+
+    events=pygame.event.get()
+
+    for event in events:
+        if event.type == pygame.KEYDOWN:
+            pause_execution=not pause_execution
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        mouseClick=pygame.mouse.get_pressed()
+        mouseClick=[int(i) for i in mouseClick]
+        if sum(mouseClick)>0:
+            pos_x,pos_y=pygame.mouse.get_pos()
+            cell_x,cell_y=int(np.floor(pos_x/cell_width)),int(np.floor(pos_y/cell_height))
+            NewGameState[cell_x,cell_y]=not mouseClick[2]
+
+    for y in range(0,n_cells_x):
+        for x in range(0,n_cells_y):
+            if not pause_execution:
+
+                n_neighbors=get_neighbors_number(GameState,x,y,n_cells_x,n_cells_y)
+
+                #Rule 1
+                if GameState[x,y]==0 and n_neighbors==3:
+                    NewGameState[x,y]=1
+
+                #Rule 2
+                if GameState[x,y]==1 and (n_neighbors<2 or n_neighbors>3):
+                    NewGameState[x,y]=0
+
+
+            cell=get_cell_points(x,y,cell_width,cell_height)
+
+            if NewGameState[x,y]==0:
+                pygame.draw.polygon(screen,(0,0,128),cell,1)
+            else:
+                pygame.draw.polygon(screen,(255,255,255),cell,0)
+
+    GameState=np.copy(NewGameState)
+
+    pygame.display.flip()
