@@ -1,3 +1,4 @@
+from curses import window
 import pygame
 import sys
 import numpy as np
@@ -11,23 +12,25 @@ pygame.init()
 
 game_settings=get_game_settings()
 
-color = game_settings.background_color
+color_window = game_settings.background_color
+
+stats_font =pygame.font.SysFont("Arial",20)
 
 n_cells_x,n_cells_y=game_settings.n_cells_x,game_settings.n_cells_y
-
 cell_width=game_settings.width/n_cells_x
 cell_height=game_settings.height/n_cells_y
-
-screen = pygame.display.set_mode((game_settings.width, game_settings.height),pygame.RESIZABLE)
-
 GameState=np.zeros((n_cells_x,n_cells_y))
 
+window = pygame.display.set_mode((game_settings.width, game_settings.height),pygame.RESIZABLE)
+pygame.display.set_caption("The Life Game")
 
 pause_execution=False
 
+
 while True:
     NewGameState=np.copy(GameState)
-    screen.fill(color)
+    window.fill(color_window)
+
     time.sleep(0.1)
 
     events=pygame.event.get()
@@ -36,6 +39,7 @@ while True:
         if event.type == pygame.KEYDOWN:
             pause_execution=not pause_execution
         if event.type == pygame.QUIT:
+            pygame.quit()
             sys.exit()
 
         mouseClick=pygame.mouse.get_pressed()
@@ -60,13 +64,20 @@ while True:
                     NewGameState[x,y]=0
 
 
+
             cell=get_cell_points(x,y,cell_width,cell_height)
 
             if NewGameState[x,y]==0:
-                pygame.draw.polygon(screen,(0,0,128),cell,1)
+                pygame.draw.polygon(window,(0,0,128),cell,1)
             else:
-                pygame.draw.polygon(screen,(255,255,255),cell,0)
+                pygame.draw.polygon(window,(255,255,255),cell,0)
+
+
+    population=stats_font.render(f"Population: {np.sum(NewGameState)}",0,(255,0,0))
+    window.blit(population,(10,30))
+
+
 
     GameState=np.copy(NewGameState)
 
-    pygame.display.flip()
+    pygame.display.update()
