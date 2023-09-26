@@ -2,10 +2,9 @@ from curses import window
 import pygame
 import sys
 import numpy as np
-import time
 
-from utils.functions import get_cell_points, get_neighbors_number
-from utils.settings import get_game_settings
+from src.functions import get_cell_points, get_neighbors_number
+from src.settings import get_game_settings
 
 
 pygame.init()
@@ -30,8 +29,6 @@ pause_execution=False
 while True:
     NewGameState=np.copy(GameState)
     window.fill(color_window)
-
-    time.sleep(0.1)
 
     events=pygame.event.get()
 
